@@ -42,10 +42,16 @@ def bruter(domain):
         return good_check
     except requests.exceptions.SSLError:
         print("   " + bad + 'Error handshaking with SSL')
+        return []
     except requests.exceptions.ReadTimeout:
         print("   " + bad + "Connection Timeout")
+        return []
     except requests.ConnectTimeout:
         print("   " + bad + "Connection Timeout ")
+        return []
+    except Exception as e:
+        print("   " + bad + f"Connection error: {e}")
+        return []
 
 
 def nameserver(domain):
@@ -54,6 +60,9 @@ def nameserver(domain):
     checking = bruter(domain)
     good_dns = []
     print(info + 'Bruteforcing domain extensions and getting DNS records')
+    if not checking:
+        print(tab + warn + f'No domain extensions to check')
+        return good_dns
     print(tab + warn + f'Total domain extension used: {Y}{len(checking)}{W}')
     for item in checking:
         try:
