@@ -5,8 +5,11 @@ import os
 import re
 
 import thirdparty.requests as requests
+import thirdparty.urllib3 as urllib3
 from lib.tools.ispcheck import ISPCheck
 from thirdparty.dns import resolver
+
+urllib3.disable_warnings()
 
 from ..utils.colors import W, Y, bad, good, info, tab, warn
 from ..utils.settings import config
@@ -28,7 +31,7 @@ def bruter(domain):
     donames = donames_list()
     url = 'http://' + domain
     try:
-        page = requests.get(url, timeout=config['http_timeout_seconds'])
+        page = requests.get(url, timeout=config['http_timeout_seconds'], verify=False)
         http = 'http://' if 'http://' in page.url else 'https://'
         host = page.url.replace(http, '').split('/')[0]
         webname = host.split('.')[1].replace('.', '') if 'www' in host else host.split('.')[0]

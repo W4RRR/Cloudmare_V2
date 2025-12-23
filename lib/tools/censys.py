@@ -1,6 +1,9 @@
 import thirdparty.requests as requests
+import thirdparty.urllib3 as urllib3
 from thirdparty.bs4 import BeautifulSoup
 from thirdparty.censys.search import CensysHosts
+
+urllib3.disable_warnings()
 
 from ..utils.colors import bad, good, info, tab, warn
 from .ispcheck import ISPCheck
@@ -18,7 +21,7 @@ def censys(domain, conf):
 
     print(info + 'Enumerating historical data from: %s using Censys.io' % domain)
     header = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'}
-    req = requests.get('http://' + domain, headers=header)
+    req = requests.get('http://' + domain, headers=header, verify=False)
     soup = BeautifulSoup(req.text, 'html.parser')
     title = soup.title.string if soup.title else None
 

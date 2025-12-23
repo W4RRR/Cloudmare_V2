@@ -44,7 +44,7 @@ def netcat(domain, host, ignoreRedir, userAgent, randomAgent, header, count):
             return
         print(info + 'Connecting %s using as Host Header: %s' % (ip, domain))
         count += 1
-        page = requests.get('http://' + domain, timeout=config['http_timeout_seconds'])
+        page = requests.get('http://' + domain, timeout=config['http_timeout_seconds'], verify=False)
         hncat = page.url.replace('http://', '').split('/')[0]
         headers.update(host=hncat)
         data = requests.get('http://' + ip, headers=headers,
