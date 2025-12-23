@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import re
 from collections import namedtuple
 
+import thirdparty.six as six
 from ..exceptions import LocationParseError
 
 

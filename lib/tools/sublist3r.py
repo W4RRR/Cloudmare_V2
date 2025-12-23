@@ -568,6 +568,8 @@ class NetcraftEnum(enumeratorBaseThreaded):
     def enumerate(self):
         start_url = self.base_url.format(domain='example.com')
         resp = self.req(start_url)
+        if resp is None:
+            return self.subdomains
         cookies = self.get_cookies(resp.headers)
         url = self.base_url.format(domain=self.domain)
         while True:
@@ -648,6 +650,8 @@ class DNSdumpster(enumeratorBaseThreaded):
     def enumerate(self):
         self.lock = threading.BoundedSemaphore(value=70)
         resp = self.req('GET', self.base_url)
+        if not isinstance(resp, str):
+            return self.subdomains
         token = self.get_csrftoken(resp)
         params = {'csrfmiddlewaretoken': token, 'targetip': self.domain}
         post_resp = self.req('POST', self.base_url, params)
@@ -693,6 +697,7 @@ class Virustotal(enumeratorBaseThreaded):
             self.apikey = self.parser.get('VTOTAL', 'api_key')
         except Exception:
             self.print_(bad + R + "Couldn't Open \"api.conf\" file and read it!" + W)
+            self.apikey = ""
         return
 
     # the main send_req need to be rewritten
@@ -735,7 +740,12 @@ with open('data/APIs/api.conf', 'w') as configfile:
     def enumerate(self):
         while self.url != '':
             resp = self.send_req(self.url)
-            resp = json.loads(resp)
+            if not isinstance(resp, str):
+                return self.subdomains
+            try:
+                resp = json.loads(resp)
+            except json.JSONDecodeError:
+                return self.subdomains
             # - Old debugging
             if 'error' in resp and self.apikey != "":
                 self.print_(
