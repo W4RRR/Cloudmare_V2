@@ -40,6 +40,7 @@ def shodan(domain, conf):
         return res
     except ShodanException.APITimeout as e:
         print(bad + "API timeout:" + str(e))
+        return []
     except ShodanException.APIError as e:
         print(tab + bad + "Error with your shodan credentials: %s" % e)
         ans = input(tab + warn + "Do you want to delete your credentials? y/n: ")
@@ -49,4 +50,7 @@ def shodan(domain, conf):
                 config.write(configfile)
             print(tab + good + "Your credentials have been deleted")
         print(tab + run + "Please re-run the script again")
-        sys.exit()
+        return []
+    except Exception as e:
+        print(tab + bad + "Error: %s" % str(e))
+        return []

@@ -9,7 +9,7 @@ import thirdparty.urllib3 as urllib3
 from thirdparty.html_similarity import similarity
 
 from ..utils.colors import bad, good, info, tab, warn
-from ..utils.settings import config, quest
+from ..utils.settings import config, quest, apply_delay
 from .dnslookup import DNSLookup
 from .ispcheck import ISPCheck
 
@@ -44,9 +44,11 @@ def netcat(domain, host, ignoreRedir, userAgent, randomAgent, header, count):
             return
         print(info + 'Connecting %s using as Host Header: %s' % (ip, domain))
         count += 1
+        apply_delay()
         page = requests.get('http://' + domain, timeout=config['http_timeout_seconds'], verify=False)
         hncat = page.url.replace('http://', '').split('/')[0]
         headers.update(host=hncat)
+        apply_delay()
         data = requests.get('http://' + ip, headers=headers,
                             timeout=config['http_timeout_seconds'], allow_redirects=False, verify=False)
         if data.status_code in [301, 302]:

@@ -21,9 +21,13 @@ def censys(domain, conf):
 
     print(info + 'Enumerating historical data from: %s using Censys.io' % domain)
     header = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'}
-    req = requests.get('http://' + domain, headers=header, verify=False)
-    soup = BeautifulSoup(req.text, 'html.parser')
-    title = soup.title.string if soup.title else None
+    title = None
+    try:
+        req = requests.get('http://' + domain, headers=header, verify=False, timeout=10)
+        soup = BeautifulSoup(req.text, 'html.parser')
+        title = soup.title.string if soup.title else None
+    except Exception as e:
+        print(tab + warn + f'Could not fetch page title: {e}')
 
     ID = (input(tab + warn + 'Please enter your censys ID: ') if config.get('CENSYS', 'API_ID') == ''
           else config.get('CENSYS', 'API_ID'))
@@ -60,3 +64,4 @@ def censys(domain, conf):
         return censys_ip
     except Exception as e:
         print(tab*2 + bad + str(e))
+        return []

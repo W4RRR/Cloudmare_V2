@@ -132,6 +132,9 @@ def parser_cmd(argv=None):
         request.add_argument("--threads", dest="threads", default=defaults.threads, type=int,
                              help="Max number of concurrent HTTP(s) requests (default %d)" % defaults.threads)
 
+        request.add_argument("--delay", dest="delay", default=None, type=str,
+                             help="Random delay between requests in seconds (e.g. '1.2-2.4' for 1.2 to 2.4 seconds)")
+
         # Search options
         search = parser.add_argument_group("Search", "These options can be used to perform advanced searches")
 

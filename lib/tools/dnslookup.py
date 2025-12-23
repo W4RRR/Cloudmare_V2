@@ -9,7 +9,7 @@ from thirdparty.html_similarity import similarity
 urllib3.disable_warnings()
 
 from ..utils.colors import Y, bad, good, info, tab
-from ..utils.settings import config
+from ..utils.settings import config, apply_delay
 
 
 def scan(domain, host, userAgent, randomAgent, header):
@@ -20,7 +20,9 @@ def scan(domain, host, userAgent, randomAgent, header):
     try:
         print("\n" + Y + "Attempting to track real IP using: %s\n" % host)
         print(info + "Checking if {0} is similar to {1}".format(host, domain))
+        apply_delay()
         get_domain = requests.get('http://' + domain, headers=headers, timeout=config['http_timeout_seconds'], verify=False)
+        apply_delay()
         get_host = requests.get('http://' + host, headers=headers, timeout=config['http_timeout_seconds'], verify=False)
         page_similarity = similarity(get_domain.text, get_host.text)
         if page_similarity > config['response_similarity_threshold']:

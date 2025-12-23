@@ -17,6 +17,7 @@ from lib import (DNSLookup, IPscan, censys, logotype, nameserver, netcat,
                  parser_cmd, quest, scan, securitytrails, shodan, sublist3r)
 from lib.tools import ISPCheck
 from lib.utils.colors import bad, warn
+from lib.utils.settings import set_delay, apply_delay
 from thirdparty import urllib3
 
 urllib3.disable_warnings()
@@ -37,6 +38,10 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, keyboard_exit)
     args, parsErr = parser_cmd()
     output = "data/output/subdomains-from-" + (args.domain).split('.')[0] + ".txt" if args.outSub is None else False
+
+    # Configure delay between requests if specified
+    if args.delay:
+        set_delay(args.delay)
 
     urlReg = re.compile(r'^(?:https?://)?(?:(?:w{2,3}\d{1})+|mobile\.|m(?:\d?)+\.)?((?:[.\w\d-]+))')
     args.domain = urlReg.search(args.domain).group(1)

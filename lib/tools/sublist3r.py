@@ -28,7 +28,7 @@ import thirdparty.dns.resolver
 import thirdparty.requests as requests
 from lib.tools.ispcheck import ISPCheck
 from lib.utils.colors import G, R, W, Y, bad, good, info, run, tab, warn
-from lib.utils.settings import quest
+from lib.utils.settings import quest, apply_delay
 
 from .subbrute import subbrute
 
@@ -160,7 +160,7 @@ class enumeratorBase(object):
         return
 
     def send_req(self, query, page_no=1):
-
+        apply_delay()  # Apply random delay between requests
         url = self.base_url.format(query=query, page_no=page_no)
         try:
             resp = self.session.get(url, headers=self.headers, timeout=self.timeout)

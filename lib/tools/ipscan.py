@@ -8,7 +8,7 @@ urllib3.disable_warnings()
 
 from ..tools.netcat import netcat
 from ..utils.colors import bad, good, info, tab
-from ..utils.settings import config
+from ..utils.settings import config, apply_delay
 
 
 def IPscan(domain, ns, A, userAgent, randomAgent, header, args):
@@ -25,12 +25,14 @@ def IPscan(domain, ns, A, userAgent, randomAgent, header, args):
             print(info + 'Using DIG to get the real IP')
             print(tab + good + 'Possible IP: %s' % str(A))
             print(info + 'Retrieving target homepage at: %s' % url)
+            apply_delay()
             org_response = requests.get(url, headers=headers, timeout=config['http_timeout_seconds'], verify=False)
             if org_response.status_code != 200:
                 print(tab + bad + 'Responded with an unexpected HTTP status code')
             if org_response.url != url:
                 print(tab + good + '%s Redirects to %s' % (url, org_response.url))
             try:
+                apply_delay()
                 sec_response = requests.get('http://' + str(A), headers=headers, timeout=config['http_timeout_seconds'], verify=False)
                 if sec_response.status_code != 200:
                     print(tab + bad + 'Responded with an unexpected HTTP status code')

@@ -68,10 +68,38 @@ def install_dependencies(silent=False):
 install_dependencies()
 
 
+import random
+import time
+
 config = {
     'http_timeout_seconds': 5,
-    'response_similarity_threshold': 0.9
+    'response_similarity_threshold': 0.9,
+    'delay_min': 0,
+    'delay_max': 0
 }
+
+
+def apply_delay():
+    """Apply random delay between requests if configured."""
+    if config['delay_min'] > 0 or config['delay_max'] > 0:
+        delay = random.uniform(config['delay_min'], config['delay_max'])
+        time.sleep(delay)
+
+
+def set_delay(delay_str):
+    """Parse delay string like '1.2-2.4' and set config values."""
+    if delay_str:
+        try:
+            if '-' in delay_str:
+                parts = delay_str.split('-')
+                config['delay_min'] = float(parts[0])
+                config['delay_max'] = float(parts[1])
+            else:
+                config['delay_min'] = float(delay_str)
+                config['delay_max'] = float(delay_str)
+            print(f"{warn}Random delay enabled: {config['delay_min']}-{config['delay_max']}s between requests")
+        except ValueError:
+            print(f"{bad}Invalid delay format. Use '1.2-2.4' or '1.5'")
 
 # version (<major>.<minor>.<month>.<day>)
 VERSION = '2.0.0'
