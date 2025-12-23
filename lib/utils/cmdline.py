@@ -159,6 +159,9 @@ def parser_cmd(argv=None):
         output.add_argument("--oI", "--output-ip", dest="outSubIP", action="store_true",
                             help="Save subdomains IP into: \"data/output/good-subdomains-[domain].txt\"")
 
+        output.add_argument("-oR", "--output-results", dest="outResults", nargs="?", const="all", type=str,
+                            help="Save full results with WAF/real IPs. Formats: 'json', 'csv', 'txt', or 'all' (default)")
+
         advancedHelp = True
         argv = sys.argv[1:]
         checkOldOptions(argv)

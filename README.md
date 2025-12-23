@@ -89,6 +89,28 @@ python Cloudmare_V2.py -u target.site --random-agent --delay 1.0-2.5
 | `-o, --output` | Save subdomains to file |
 | `--oG, --output-good` | Save only valid subdomains |
 | `--oI, --output-ip` | Save subdomain IPs |
+| `-oR, --output-results` | **NEW!** Save full results with WAF IPs and real IPs (json, csv, txt) |
+
+### Results Export (`-oR`)
+
+The `-oR` option saves comprehensive scan results including:
+- Subdomains protected by WAF (with WAF IP and provider name)
+- Subdomains with exposed real IPs
+- Summary statistics
+
+```bash
+# Save results in all formats (JSON, CSV, TXT)
+python Cloudmare_V2.py -u target.site -oR
+
+# Save only in specific formats
+python Cloudmare_V2.py -u target.site -oR json
+python Cloudmare_V2.py -u target.site -oR csv,txt
+```
+
+**Output files created in `data/output/`:**
+- `results-target.json` - Machine-readable JSON with full details
+- `results-target.csv` - Spreadsheet-compatible CSV format  
+- `results-target.txt` - Human-readable text report
 
 ## 🔑 API Configuration
 
