@@ -135,6 +135,9 @@ def parser_cmd(argv=None):
         request.add_argument("--delay", dest="delay", default=None, type=str,
                              help="Random delay between requests in seconds (e.g. '1.2-2.4' for 1.2 to 2.4 seconds)")
 
+        request.add_argument("-f", "--auto-force", dest="autoForce", action="store_true",
+                             help="Auto-force connections on unexpected status codes (no prompts, for automation)")
+
         # Search options
         search = parser.add_argument_group("Search", "These options can be used to perform advanced searches")
 

@@ -75,7 +75,8 @@ config = {
     'http_timeout_seconds': 5,
     'response_similarity_threshold': 0.9,
     'delay_min': 0,
-    'delay_max': 0
+    'delay_max': 0,
+    'auto_force': False  # Auto-force connections without prompts
 }
 
 
@@ -100,6 +101,18 @@ def set_delay(delay_str):
             print(f"{warn}Random delay enabled: {config['delay_min']}-{config['delay_max']}s between requests")
         except ValueError:
             print(f"{bad}Invalid delay format. Use '1.2-2.4' or '1.5'")
+
+
+def set_auto_force(enabled):
+    """Enable or disable auto-force mode for unattended operation."""
+    config['auto_force'] = enabled
+    if enabled:
+        print(f"{warn}Auto-force mode enabled: will auto-continue on unexpected status codes")
+
+
+def is_auto_force():
+    """Check if auto-force mode is enabled."""
+    return config.get('auto_force', False)
 
 # version (<major>.<minor>.<month>.<day>)
 VERSION = '2.0.0'

@@ -19,7 +19,7 @@ from lib import (DNSLookup, IPscan, censys, logotype, nameserver, netcat,
                  parser_cmd, quest, scan, securitytrails, shodan, sublist3r)
 from lib.tools import ISPCheck
 from lib.utils.colors import bad, warn, good, info, tab, G, R, Y, W
-from lib.utils.settings import set_delay, apply_delay
+from lib.utils.settings import set_delay, apply_delay, set_auto_force
 from lib.utils.results import init_results, get_results, add_result
 from thirdparty import urllib3
 
@@ -45,6 +45,10 @@ if __name__ == "__main__":
     # Configure delay between requests if specified
     if args.delay:
         set_delay(args.delay)
+    
+    # Configure auto-force mode for unattended operation
+    if args.autoForce:
+        set_auto_force(True)
 
     urlReg = re.compile(r'^(?:https?://)?(?:(?:w{2,3}\d{1})+|mobile\.|m(?:\d?)+\.)?((?:[.\w\d-]+))')
     args.domain = urlReg.search(args.domain).group(1)

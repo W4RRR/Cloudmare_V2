@@ -73,6 +73,7 @@ python Cloudmare_V2.py -u target.site --random-agent --delay 1.0-2.5
 | `--ignore-redirects` | Ignore HTTP redirections |
 | `--threads` | Max concurrent requests (default: 30) |
 | `--delay` | Random delay between requests (e.g. "1.0-2.5" for 1-2.5 seconds) |
+| `-f, --auto-force` | **NEW!** Auto-force connections without prompts (for automation) |
 
 ### Search Options (API Integration)
 
@@ -111,6 +112,23 @@ python Cloudmare_V2.py -u target.site -oR csv,txt
 - `results-target.json` - Machine-readable JSON with full details
 - `results-target.csv` - Spreadsheet-compatible CSV format  
 - `results-target.txt` - Human-readable text report
+
+### Automation Mode (`-f`)
+
+Use `-f` or `--auto-force` for fully automated scans without any user prompts:
+
+```bash
+# Full automated scan with results export
+python Cloudmare_V2.py -u target.site --random-agent -f -oR
+
+# Automated scan with delay to avoid rate limiting
+python Cloudmare_V2.py -u target.site --random-agent -f --delay 1.0-2.0 -oR
+```
+
+This mode automatically:
+- Forces connections on unexpected status codes (502, 403, etc.)
+- Follows redirects without asking
+- Continues scanning without stopping when real IPs are found
 
 ## 🔑 API Configuration
 
