@@ -1,0 +1,7 @@
+# Cloudmare_V2 Dependencies
+# https://github.com/W4RRR/Cloudmare_V2
+# Install with: pip install -r requirements.txt
+# Note: Dependencies are installed automatically when running the tool
+
+lxml>=4.6.0
+
