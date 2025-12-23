@@ -2,6 +2,7 @@ import re
 import socket
 
 from lib.utils.colors import R, W, Y, tab, warn
+from lib.utils.http_client import create_session
 from thirdparty import requests
 from thirdparty.bs4 import BeautifulSoup
 from thirdparty import urllib3
@@ -15,15 +16,16 @@ cloudlist = ['sucuri',
 
 def ISPCheck(domain):
     reg = re.compile(rf'(?i){"|".join(cloudlist)}')
+    session = create_session()  # Use modern TLS session
     try:
-        header = requests.get('http://' + domain, timeout=3, verify=False).headers.get('server', '').lower()
+        header = session.get('http://' + domain, timeout=3, verify=False).headers.get('server', '').lower()
         if header and reg.search(header):
             return f' is protected by {Y}{header.capitalize()}{W}'
         return None
     except Exception:
         # Fallback: try to check via check-host.net
         try:
-            req = requests.get(f'https://check-host.net/ip-info?host={domain}', timeout=5, verify=False).text
+            req = session.get(f'https://check-host.net/ip-info?host={domain}', timeout=5, verify=False).text
             UrlHTML = BeautifulSoup(req, "lxml")
             if UrlHTML.findAll('div', {'class': 'error'}):
                 return None  # Cannot retrieve info, but don't block

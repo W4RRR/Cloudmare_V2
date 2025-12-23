@@ -10,6 +10,7 @@ from thirdparty.html_similarity import similarity
 
 from ..utils.colors import bad, good, info, tab, warn
 from ..utils.settings import config, quest, apply_delay
+from ..utils.http_client import create_session
 from .dnslookup import DNSLookup
 from .ispcheck import ISPCheck
 
@@ -36,6 +37,7 @@ def netcat(domain, host, ignoreRedir, userAgent, randomAgent, header, count):
 
     A = DNSLookup(domain, host)
     question = None
+    session = create_session()  # Use modern TLS session
     try:
         ip = socket.gethostbyname(str(host)) if count == 0 else str(A)
         isCloud = ISPCheck(ip)
@@ -45,11 +47,11 @@ def netcat(domain, host, ignoreRedir, userAgent, randomAgent, header, count):
         print(info + 'Connecting %s using as Host Header: %s' % (ip, domain))
         count += 1
         apply_delay()
-        page = requests.get('http://' + domain, timeout=config['http_timeout_seconds'], verify=False)
+        page = session.get('http://' + domain, timeout=config['http_timeout_seconds'], verify=False)
         hncat = page.url.replace('http://', '').split('/')[0]
         headers.update(host=hncat)
         apply_delay()
-        data = requests.get('http://' + ip, headers=headers,
+        data = session.get('http://' + ip, headers=headers,
                             timeout=config['http_timeout_seconds'], allow_redirects=False, verify=False)
         if data.status_code in [301, 302]:
             print(tab + info + "%s redirects to: %s" % ('http://' + ip, data.headers['Location']))
@@ -61,7 +63,7 @@ def netcat(domain, host, ignoreRedir, userAgent, randomAgent, header, count):
                             **{'return': True}
                             )
                         )
-            data = requests.get(
+            data = session.get(
                 'http://' + ip,
                 headers=headers,
                 timeout=config['http_timeout_seconds'],
@@ -88,4 +90,15 @@ def netcat(domain, host, ignoreRedir, userAgent, randomAgent, header, count):
         if question in ['y', 'yes', 'ye']:
             print(tab + bad + 'Error while connecting to: %s' % data.headers['Location'])
             return
-        print(tab + bad + "%s" % str(e.errno))
+        # Show meaningful error message instead of None
+        error_msg = str(e) if str(e) else type(e).__name__
+        if hasattr(e, 'errno') and e.errno:
+            if e.errno == -2:
+                error_msg = "DNS resolution failed - Host not found"
+            elif e.errno == 111:
+                error_msg = "Connection refused"
+            elif e.errno == 110:
+                error_msg = "Connection timed out"
+            else:
+                error_msg = f"Connection error (errno: {e.errno})"
+        print(tab + bad + error_msg)

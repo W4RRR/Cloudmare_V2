@@ -6,6 +6,7 @@ from thirdparty.censys.search import CensysHosts
 urllib3.disable_warnings()
 
 from ..utils.colors import bad, good, info, tab, warn
+from ..utils.http_client import create_session
 from .ispcheck import ISPCheck
 
 try:
@@ -20,10 +21,10 @@ def censys(domain, conf):
     censys_ip = []
 
     print(info + 'Enumerating historical data from: %s using Censys.io' % domain)
-    header = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'}
+    session = create_session()  # Use modern TLS session
     title = None
     try:
-        req = requests.get('http://' + domain, headers=header, verify=False, timeout=10)
+        req = session.get('http://' + domain, verify=False, timeout=10)
         soup = BeautifulSoup(req.text, 'html.parser')
         title = soup.title.string if soup.title else None
     except Exception as e:

@@ -39,18 +39,32 @@ def shodan(domain, conf):
          else print(tab * 2 + bad + ip['value'] + ISPCheck(ip['value'])) for ip in counts['facets']['ip']]
         return res
     except ShodanException.APITimeout as e:
-        print(bad + "API timeout:" + str(e))
+        print(tab + bad + "API timeout: %s" % str(e))
         return []
     except ShodanException.APIError as e:
-        print(tab + bad + "Error with your shodan credentials: %s" % e)
-        ans = input(tab + warn + "Do you want to delete your credentials? y/n: ")
-        if ans in ["yes", "y", "Y", "ye"]:
-            config.set('SHODAN', 'API_KEY', '')
-            with open(conf, 'w+') as configfile:
-                config.write(configfile)
-            print(tab + good + "Your credentials have been deleted")
-        print(tab + run + "Please re-run the script again")
+        error_str = str(e).lower()
+        # Only ask to delete credentials for actual authentication errors
+        if 'invalid api key' in error_str or 'unauthorized' in error_str or '401' in error_str:
+            print(tab + bad + "Invalid Shodan API key: %s" % e)
+            ans = input(tab + warn + "Do you want to delete your credentials? [y/N]: ")
+            if ans.lower() in ["yes", "y", "ye"]:
+                config.set('SHODAN', 'API_KEY', '')
+                with open(conf, 'w+') as configfile:
+                    config.write(configfile)
+                print(tab + good + "Your credentials have been deleted")
+        else:
+            # Connection error, rate limit, or other API error - don't suggest deleting keys
+            print(tab + bad + "Shodan API error: %s" % e)
         return []
     except Exception as e:
-        print(tab + bad + "Error: %s" % str(e))
+        # Generic connection errors (SSL, timeout, network issues)
+        error_msg = str(e) if str(e) else type(e).__name__
+        if 'ssl' in error_msg.lower() or 'handshake' in error_msg.lower():
+            print(tab + bad + "SSL/TLS connection error with Shodan API")
+        elif 'timeout' in error_msg.lower():
+            print(tab + bad + "Connection timeout with Shodan API")
+        elif 'connection' in error_msg.lower():
+            print(tab + bad + "Unable to connect to Shodan API - check your internet connection")
+        else:
+            print(tab + bad + "Error: %s" % error_msg)
         return []

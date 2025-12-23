@@ -29,6 +29,7 @@ import thirdparty.requests as requests
 from lib.tools.ispcheck import ISPCheck
 from lib.utils.colors import G, R, W, Y, bad, good, info, run, tab, warn
 from lib.utils.settings import quest, apply_delay
+from lib.utils.http_client import TLSAdapter, get_browser_headers
 
 from .subbrute import subbrute
 
@@ -134,19 +135,21 @@ class enumeratorBase(object):
         subdomains = subdomains or []
         self.domain = urlparse.urlparse(domain).netloc
         self.session = requests.Session()
+        # Mount TLS adapter for modern SSL/TLS configuration to avoid WAF blocking
+        try:
+            tls_adapter = TLSAdapter()
+            self.session.mount('https://', tls_adapter)
+            self.session.mount('http://', tls_adapter)
+        except Exception:
+            pass  # Fall back to default if TLS adapter fails
         self.subdomains = []
         self.timeout = 25
         self.base_url = base_url
         self.engine_name = engine_name
         self.silent = silent
         self.verbose = verbose
-        self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) \
-                AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.8',
-            'Accept-Encoding': 'gzip',
-        }
+        # Use modern browser-like headers to avoid detection
+        self.headers = get_browser_headers()
         self.print_banner()
 
     def print_(self, text):

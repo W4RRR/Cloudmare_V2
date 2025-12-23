@@ -13,6 +13,7 @@ urllib3.disable_warnings()
 
 from ..utils.colors import W, Y, bad, good, info, tab, warn
 from ..utils.settings import config
+from ..utils.http_client import create_session
 
 
 def donames_list():
@@ -30,8 +31,9 @@ def bruter(domain):
     good_check = []
     donames = donames_list()
     url = 'http://' + domain
+    session = create_session()  # Use modern TLS session
     try:
-        page = requests.get(url, timeout=config['http_timeout_seconds'], verify=False)
+        page = session.get(url, timeout=config['http_timeout_seconds'], verify=False)
         http = 'http://' if 'http://' in page.url else 'https://'
         host = page.url.replace(http, '').split('/')[0]
         webname = host.split('.')[1].replace('.', '') if 'www' in host else host.split('.')[0]

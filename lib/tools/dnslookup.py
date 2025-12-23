@@ -10,6 +10,7 @@ urllib3.disable_warnings()
 
 from ..utils.colors import Y, bad, good, info, tab
 from ..utils.settings import config, apply_delay
+from ..utils.http_client import create_session
 
 
 def scan(domain, host, userAgent, randomAgent, header):
@@ -17,13 +18,14 @@ def scan(domain, host, userAgent, randomAgent, header):
     (headers.update({'User-agent': random.choice(open("data/txt/random_agents.txt").readlines()).rstrip("\n")})
      if randomAgent is True else '')
     headers.update({'User-agent': userAgent}) if userAgent is not None else ''
+    session = create_session()  # Use modern TLS session
     try:
         print("\n" + Y + "Attempting to track real IP using: %s\n" % host)
         print(info + "Checking if {0} is similar to {1}".format(host, domain))
         apply_delay()
-        get_domain = requests.get('http://' + domain, headers=headers, timeout=config['http_timeout_seconds'], verify=False)
+        get_domain = session.get('http://' + domain, headers=headers, timeout=config['http_timeout_seconds'], verify=False)
         apply_delay()
-        get_host = requests.get('http://' + host, headers=headers, timeout=config['http_timeout_seconds'], verify=False)
+        get_host = session.get('http://' + host, headers=headers, timeout=config['http_timeout_seconds'], verify=False)
         page_similarity = similarity(get_domain.text, get_host.text)
         if page_similarity > config['response_similarity_threshold']:
             print(tab + good + 'HTML content is %d%% structurally similar to: %s'
